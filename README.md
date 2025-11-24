@@ -1,1 +1,1 @@
-# LINFO1252-Syst-mes-Informatiques
+# LINFO1252-Systemes-Informatiques
