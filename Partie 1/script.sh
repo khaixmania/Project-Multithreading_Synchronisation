@@ -13,7 +13,7 @@ for programme in "${FILES[@]}";
 	then
 	for (( i=1; i<=5; i++)); do
 	    starttime=$(date +%s.%N)
-	    ./"$programme" "$thread"
+	    ./"$programme" "$thread" > /dev/null
 	    endtime=$(date +%s.%N)
 	    totaltime=$(echo "$endtime - $starttime" | bc -l)
 	    echo "$thread,$i,$totaltime" >> "analyses/${programme}.csv"
@@ -22,7 +22,7 @@ for programme in "${FILES[@]}";
 	for (( i=1; i<=5; i++)); do
 	    divided=$((thread/2))
 	    starttime=$(date +%s.%N)
-	    ./"$programme" "$divided" "$divided"
+	    ./"$programme" "$divided" "$divided" > /dev/null
 	    endtime=$(date +%s.%N)
 	    totaltime=$(echo "$endtime - $starttime" | bc -l)
 	    echo "$thread,$i,$totaltime" >> "analyses/${programme}.csv"
