@@ -13,5 +13,10 @@ void lock(){
     }
 }
 void unlock(){
-    x = 0;
+    __asm__ __volatile__(
+        "movl $0, %0"
+        : "+m"(x)
+        :
+        : "memory"
+    );
 }
