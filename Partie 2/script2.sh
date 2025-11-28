@@ -9,7 +9,7 @@ for programme in "${FILES[@]}"; do
     if [ "$programme" == "test1" ]; then
         gcc -Wall -o "$programme" spinlocks_performance.c spinlocks.c -lpthread
     else
-        gcc -Wall -o "$programme" performance_ttas.c spinlocks_ttas.c -lpthread
+        gcc -Wall -o "$programme" spinlocks2_performance.c spinlocks_ttas.c -lpthread
     fi
     for thread in "${THREADS[@]}"; do
         if [ "$programme" == "test1" ]; then
