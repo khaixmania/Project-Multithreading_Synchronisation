@@ -1,4 +1,4 @@
-#include "spinlocks_ttas.h"
+#include "spinlocks2.h"
 
 void lock2(int *arg){
     while (1) {
