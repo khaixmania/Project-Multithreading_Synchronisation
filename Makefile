@@ -9,7 +9,7 @@ LIST2 = $(P2)/test1 $(P2)/test2 $(P2)/philosophers_spin $(P2)/producer_consumer_
 
 all: $(LIST1) $(LIST2)
 
-# --- Compilation P1 ---
+# Compilation P1
 $(P1)/philosophers: $(P1)/philosophers.c
 	$(CC) -o "$@" "$<" $(CFLAGS)
 
@@ -20,7 +20,7 @@ $(P1)/reader_writer: $(P1)/reader_writer.c
 	$(CC) -o "$@" "$<" $(CFLAGS)
 
 
-# --- Compilation P2 ---
+# Compilation P2
 $(P2)/test1: $(P2)/spinlocks_performance.c $(P2)/spinlocks.c
 	$(CC) -o "$@" $(P2)/spinlocks_performance.c $(P2)/spinlocks.c $(CFLAGS)
 
@@ -36,7 +36,7 @@ $(P2)/producer_consumer_spin: $(P2)/producer_consumer_spin.c $(P2)/spinlocks2.c 
 $(P2)/reader_writer_spin: $(P2)/reader_writer_spin.c $(P2)/spinlocks2.c $(P2)/my_semaphore.c
 	$(CC) -o "$@" $(P2)/reader_writer_spin.c $(P2)/spinlocks2.c $(P2)/my_semaphore.c $(CFLAGS)
 
-# --- Commandes ---
+# Commandes
 test: all
 	chmod +x $(P1)/script.sh $(P2)/script2.sh
 	cd $(P1) && ./script.sh
