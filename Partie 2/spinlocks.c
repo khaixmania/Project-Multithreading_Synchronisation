@@ -1,3 +1,4 @@
+//Tâche 2.1
 #include "spinlocks.h"
 volatile int x = 0;
 
