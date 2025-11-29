@@ -1,3 +1,4 @@
+//Tâche 2.3
 #include "spinlocks2.h"
 
 void lock2(int *arg){
