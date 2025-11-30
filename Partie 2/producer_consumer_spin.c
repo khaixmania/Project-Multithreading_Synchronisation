@@ -27,7 +27,6 @@ void error(int err, char *msg) {
 }
 
 void* producer(void* arg){
-    int err;
     int id = *(int*)arg; //chaque thread insère un int fixe dans le buffer -> id
     for (int j=0; j<elem_produce; j++){
 	for (int i=0; i<10000; i++);//traitement en dehors de SC
