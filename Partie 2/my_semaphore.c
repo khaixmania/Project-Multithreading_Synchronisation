@@ -6,7 +6,7 @@ void my_sem_init(my_sem_t *sem, int val){
 
 void my_sem_wait(my_sem_t *sem){
     while(1){
-	lock2(&sem->verrou);
+	lock2(&sem->verrou); //lock l'accès à la structure du sémaphore
 	if (sem->x > 0){ // voir si ressource est dispo
 	    sem->x--; //on la prend
 	    unlock2(&sem->verrou); //puis on libère du compteur x
