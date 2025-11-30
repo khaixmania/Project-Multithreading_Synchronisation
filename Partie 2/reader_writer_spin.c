@@ -7,6 +7,8 @@
 #include <string.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include "spinlocks2.h"
+#include "my_semaphore.h"
 #define TOTAL_READ 25400
 #define TOTAL_WRITE 6400
 
