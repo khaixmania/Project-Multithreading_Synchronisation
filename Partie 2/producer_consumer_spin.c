@@ -1,5 +1,5 @@
 // Tâche 2.5 — Partie 2
-
+// Producteurs-Consommateurs avec les spinlocks
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -13,8 +13,8 @@
 #define N 8
 
 int mutex = 0; //pthread_mutex_t mutex;
-my_sem_t empty;
-my_sem_t full;
+my_sem_t empty; //sem pour les places libres
+my_sem_t full; //sem pour les places occupées
 int id_write = 0;
 int id_read = 0;
 int elem_produce;
@@ -30,20 +30,22 @@ void* producer(void* arg){
     int err;
     int id = *(int*)arg; //chaque thread insère un int fixe dans le buffer -> id
     for (int j=0; j<elem_produce; j++){
-	for (int i=0; i<10000; i++);
+	for (int i=0; i<10000; i++);//traitement en dehors de SC
+	//attente active d'une place libre, si le buffer est plein alors le thread boucle au max sur le CPU
 	my_sem_wait(&empty);
-	lock2(&mutex); //commence SC
+	lock2(&mutex); //commence SC, attente active si c'est déjà occupé
 	buffer[id_write] = id;
 	id_write++;
 	if (id_write == N) id_write = 0;
 	unlock2(&mutex);//termine SC
-	my_sem_post(&full);
+	my_sem_post(&full);//signale une place occupée
     }
     return (NULL);
 }
 
 void* consumer(void* arg){
     for (int j=0; j<elem_consume; j++){
+	//attente active d'une donnée, si le buffer est vide alors le thread saturera un core pour rien
 	my_sem_wait(&full);
 	lock2(&mutex); //SC
 	id_read++;
@@ -73,9 +75,9 @@ int main(int argc, char *argv[]) {
     elem_produce = MAX_ELEMENTS / p_size;
     elem_consume = MAX_ELEMENTS / c_size;
 
-    mutex = 0;
-    my_sem_init(&empty, N); // N places vides a l'init
-    my_sem_init(&full, 0); // Aucune place prise a l'init
+    mutex = 0; //verrou libre
+    my_sem_init(&empty, N); //N places vides a l'init
+    my_sem_init(&full, 0); //Aucune place prise a l'init
 
     pthread_t *producers = malloc(p_size * sizeof(pthread_t));
     pthread_t *consumers = malloc(c_size * sizeof(pthread_t));
