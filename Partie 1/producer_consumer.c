@@ -1,5 +1,5 @@
 // Tâche 1.2 — Partie 1
-
+// Producteurs-Consommateurs
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
