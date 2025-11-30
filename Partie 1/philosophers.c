@@ -1,4 +1,5 @@
 // Tâche 1.1 — Partie 1
+// Problème des philosophes
 
 #include <pthread.h>
 #include <stdio.h>
@@ -8,9 +9,9 @@
 #include <errno.h>
 #include <string.h>
 
-int N;
-#define CYCLES_P_M 1000000
-pthread_mutex_t *baguettes;
+int N; //nombre de philosophes
+#define CYCLES_P_M 1000000 //cycles penser/manger
+pthread_mutex_t *baguettes; //une baguette = un mutex
 
 void error(int err, char *msg) {
     fprintf(stderr,"%s a retourné %d, message d’erreur : %s\n",msg,err,strerror(err));
@@ -21,16 +22,21 @@ void* philosophe (void* arg){
     int left = *id;
     int right = (left+1) % N;
     for (int i=0; i < CYCLES_P_M; i++){
+	//Deadlocks, on va forcer un ordre de prise de baguettes
+	//ici on va prendre une baguette à l'id le plus petit d'abord
 	if (left<right){
 	    pthread_mutex_lock(&baguettes[left]);
 	    pthread_mutex_lock(&baguettes[right]);
 	}
-	else{
+	else{//la baguette droite du dernier philosophe est 0 (right<left) donc on prend la baguette droite
 	    pthread_mutex_lock(&baguettes[right]);
 	    pthread_mutex_lock(&baguettes[left]);
 	}
+	//manger() constant
+	//libérer les baguettes
 	pthread_mutex_unlock(&baguettes[left]);
 	pthread_mutex_unlock(&baguettes[right]);
+	//penser() constant
     }
     return (NULL);
 }
@@ -48,21 +54,22 @@ int main (int argc, char *argv[]){
     }
     int *thread_id = malloc(N*sizeof(int));
     pthread_t *nthreads = malloc(N*sizeof(pthread_t));
-    baguettes = malloc(N*sizeof(pthread_mutex_t));
+    //on alloue la memoire pour créer les mtex (baguettes)
+	baguettes = malloc(N*sizeof(pthread_mutex_t));
     for (int i=0; i<N; i++){
 	err = pthread_mutex_init(&baguettes[i], NULL);
 	if (err != 0) error(err, "pthread_mutex_init");
     }
-    for (int i=0; i<N; i++){
+    for (int i=0; i<N; i++){ //créer les threads
 	thread_id[i] = i;
 	err = pthread_create(&nthreads[i], NULL, philosophe,(void *)&thread_id[i]);
 	if (err != 0) error(err, "pthread_create");
     }
-    for (int i=0; i<N; i++){
+    for (int i=0; i<N; i++){//attendre la fin des threads
 	err = pthread_join(nthreads[i], NULL);
 	if (err != 0)error(err, "pthread_join");
     }
-    for (int i=0; i<N; i++){
+    for (int i=0; i<N; i++){//nettoyer les mutex
 	err = pthread_mutex_destroy(&baguettes[i]);
 	if (err != 0)error(err, "pthread_mutex_destroy");
     }
