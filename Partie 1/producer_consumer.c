@@ -7,17 +7,17 @@
 #include <string.h>
 #include <pthread.h>
 #include <semaphore.h>
-#define MAX_ELEMENTS 131072
+#define MAX_ELEMENTS 131072 //total elements à produire/consommer
 #define N 8
 
 pthread_mutex_t mutex;
-sem_t empty;
-sem_t full;
-int id_write = 0;
-int id_read = 0;
-int elem_produce;
-int elem_consume;
-int buffer[N];//buffer: tab de 8 places avec int
+sem_t empty; //places libres (size = N)
+sem_t full; //places occupées (size = 0)
+int id_write = 0; //index d'écriture
+int id_read = 0; //index de lecture
+int elem_produce; //nombre d'éléments par producteur
+int elem_consume; //nombre d'éléments par consommateur
+int buffer[N]; //buffer: tab de 8 places avec int
 
 void error(int err, char *msg) {
     fprintf(stderr,"%s a retourné %d, message d’erreur : %s\n",msg,err,strerror(err));
@@ -28,17 +28,17 @@ void* producer(void* arg){
     int err;
     int id = *(int*)arg; //chaque thread insère un int fixe dans le buffer -> id
     for (int j=0; j<elem_produce; j++){
-	for (int i=0; i<10000; i++);
-	sem_wait(&empty);
+	for (int i=0; i<10000; i++); //traitement en dehors de la SC (on produit)
+	sem_wait(&empty); //attendre qu'il y ait une place libre
+	//SECTION CRITIQUE (SC)
 	err = pthread_mutex_lock(&mutex);
 	if (err != 0)error(err, "mutex_lock");
-	//SC
 	buffer[id_write] = id;
 	id_write++;
 	if (id_write == N) id_write = 0;
 	err = pthread_mutex_unlock(&mutex);
 	if (err != 0)error(err, "mutex_unlock");
-	sem_post(&full);
+	sem_post(&full); //on prévient qu'il y a une place occupée
     }
     return (NULL);
 }
@@ -46,17 +46,16 @@ void* producer(void* arg){
 void* consumer(void* arg){
     int err;
     for (int j=0; j<elem_consume; j++){
-	sem_wait(&full);
+	sem_wait(&full); //on attend une donnée soit dispo
+	//SECTION CRITIQUE
 	err = pthread_mutex_lock(&mutex);
 	if (err != 0)error(err, "mutex_lock");
-
-	//SC
 	id_read++;
 	if (id_read == N) id_read = 0;
 	err = pthread_mutex_unlock(&mutex);
 	if (err != 0)error(err, "mutex_unlock");
-	sem_post(&empty);
-	for (int i=0; i<10000; i++);
+	sem_post(&empty);//on prévient qu'une place est libérée
+	for (int i=0; i<10000; i++); //traitement hors SC (on consomme)
     }
     return (NULL);
 }
@@ -75,7 +74,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Args > 0");
         exit(EXIT_FAILURE);
     }
-
+	//pour chaque thread, on calcule le nombre d'éléments à produire ou consommer
     elem_produce = MAX_ELEMENTS / p_size;
     elem_consume = MAX_ELEMENTS / c_size;
 
