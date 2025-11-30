@@ -10,13 +10,13 @@
 #define TOTAL_READ 25400
 #define TOTAL_WRITE 6400
 
-pthread_mutex_t mrc;
-pthread_mutex_t mwc;
-pthread_mutex_t z;
-int rc = 0;
-int wc = 0;
-sem_t rsem;
-sem_t wsem;
+pthread_mutex_t mrc; //mutex pour rc
+pthread_mutex_t mwc; //mutex pour wc
+pthread_mutex_t z; //mutex pour une file d'attente, permet d'éviter de laisser passer les nouveaux lecteurs si un écrivain arrive
+int rc = 0; //nombre de lecteurs actifs
+int wc = 0; //nombre d'écrivains actifs
+sem_t rsem; //bloque les lecteurs quand un écrivain est occupé
+sem_t wsem; 
 int nb_writes;
 int nb_reads;
 
@@ -28,16 +28,21 @@ void error(int err, char *msg) {
 void* writer(void* arg){
     int err;
     for (int i=0; i<nb_writes; i++){
+	//procédure d'un écrivain qui arrive
 	if ((err = pthread_mutex_lock(&mwc)) != 0) error(err, "mutex_lock mwc");
         wc++;
+		//l'écrivain qui arrive bloque l'accès aux lecteurs avec sem_wait(&rsem) comme wc = 1
         if (wc == 1) sem_wait(&rsem);
         if ((err = pthread_mutex_unlock(&mwc)) != 0) error(err, "mutex_unlock mwc");
+	//on attend l'accès exclusif au ressource
 	sem_wait(&wsem);
-	//SC
+	//SECTION CRITIQUE
 	for (int i = 0; i < 10000; i++); //traitement
 	sem_post(&wsem);
+    //procédure d'un écrivain qui va sortir
 	if ((err = pthread_mutex_lock(&mwc)) != 0) error(err, "mutex_lock mwc");
 	wc--;
+		// l'écrivain qui sort ne bloque plus l'arrivée aux lecteurs
         if (wc == 0) sem_post(&rsem); //dernier des writers cède sa place au lecteur
         if ((err = pthread_mutex_unlock(&mwc)) != 0) error(err, "mutex_unlock mwc");
     }
@@ -48,16 +53,21 @@ void* writer(void* arg){
 void *reader(void* arg){
     int err;
     for (int i=0; i<nb_reads; i++){
+	//procédure d'un lecteur qui arrive
+	//ici on regarde le z, si il est déjà pris par un écrivain, on va rester ici
 	if ((err = pthread_mutex_lock(&z)) != 0) error(err, "mutex_lock z");
 	sem_wait(&rsem);
 	if ((err = pthread_mutex_lock(&mrc)) != 0) error(err, "mutex_lock mrc");
 	rc++;
+	//le lecteur va lock la ressource wsem pour bloquer l'accès aux écrivains
 	if (rc == 1) sem_wait(&wsem);
 	if ((err = pthread_mutex_unlock(&mrc)) != 0) error(err, "mutex_unlock mrc");
+	//le prochain lecteur est laissé rentré 
 	sem_post(&rsem);
 	if ((err = pthread_mutex_unlock(&z)) != 0) error(err, "mutex_unlock z");
-	//SC
+	//SECTION CRITIQUE
 	for (int i = 0; i < 10000; i++);//traitement
+	//procédure d'un lecteur qui va sortir
 	if ((err = pthread_mutex_lock(&mrc)) != 0) error(err, "mutex_lock mrc");
 	rc--;
 	if (rc == 0) sem_post(&wsem);// dernier des lecteurs cède la place à l'écrivain
