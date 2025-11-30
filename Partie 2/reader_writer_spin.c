@@ -1,5 +1,5 @@
 // Tâche 2.5 — Partie 2
-
+// Lecteurs-Écrivains avec spinlocks
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -10,13 +10,13 @@
 #define TOTAL_READ 25400
 #define TOTAL_WRITE 6400
 
-int mrc = 0; //pthread_mutex_t mrc;
-int mwc = 0; //pthread_mutex_t mwc;
-int z = 0;//pthread_mutex_t z;
+int mrc = 0; //pthread_mutex_t mrc; // mutex pour read_count
+int mwc = 0; //pthread_mutex_t mwc; // mutex pour write_count
+int z = 0;//pthread_mutex_t z; // mutex de la file
 int rc = 0;
 int wc = 0;
-my_sem_t rsem;
-my_sem_t wsem;
+my_sem_t rsem; //sem qui bloque les lecteurs
+my_sem_t wsem; //sem pour l'accès exclusif au database
 int nb_writes;
 int nb_reads;
 
@@ -26,16 +26,16 @@ void error(int err, char *msg) {
 }
 
 void* writer(void* arg){
-    int err;
     for (int i=0; i<nb_writes; i++){
+	//un écrivain est annoncé
 	lock2(&mwc);
         wc++;
-        if (wc == 1)my_sem_wait(&rsem);
+        if (wc == 1)my_sem_wait(&rsem); //nouveaux lecteurs sont bloqués pour accéder
 	unlock2(&mwc);
-	my_sem_wait(&wsem);
+	my_sem_wait(&wsem); //attente d'accès à la database
 	//SC
 	for (int i = 0; i < 10000; i++); //traitement
-	my_sem_post(&wsem);
+	my_sem_post(&wsem);//libère la db
 	lock2(&mwc);
 	wc--;
         if (wc == 0) my_sem_post(&rsem); //dernier des writers cède sa place au lecteur
@@ -47,19 +47,21 @@ void* writer(void* arg){
 
 void *reader(void* arg){
     for (int i=0; i<nb_reads; i++){
-	lock2(&z);
-	my_sem_wait(&rsem);
+	//procédure d'accès
+	lock2(&z); //on passe à la file
+	my_sem_wait(&rsem); //voir pour la priorité d'écrivain
 	lock2(&mrc);
 	rc++;
-	if (rc == 1) my_sem_wait(&wsem);
+	if (rc == 1) my_sem_wait(&wsem);//premier lecteur lock l'accès à la db
 	unlock2(&mrc);
-	my_sem_post(&rsem);
-	unlock2(&z);
+	my_sem_post(&rsem); //libère pour le next
+	unlock2(&z); // libère la file
 	//SC
 	for (int i = 0; i < 10000; i++);//traitement
+	//procédure de sortie
 	lock2(&mrc);
 	rc--;
-	if (rc == 0) my_sem_post(&wsem);// dernier des lecteurs cède la place à l'écrivain
+	if (rc == 0) my_sem_post(&wsem);// dernier des lecteurs libère la db
 	unlock2(&mrc);
     }
     return NULL;
