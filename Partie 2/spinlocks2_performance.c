@@ -1,8 +1,9 @@
+// Tâche 2.3 — Mesure de performance: test-and-test-and-set
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>
-#include <sys/time.h>
+#include <sys/time.h> // Inginious : [S5] Utilisation d'un appel système (référence) — pour calculer la durée totale
 #include "spinlocks2.h"
 
 long section_critique;
@@ -10,8 +11,8 @@ int verrou = 0;
 
 void *function(void *arg) {
     for (int j=0; j<section_critique; j++) {
-        lock2(&verrou);
-        for (int i=0; i<10000; i++);
+        lock2(&verrou); //Sécurisation de la SECTION CRITIQUE avec l'algo test-and-test-and-set
+        for (int i=0; i<10000; i++); //traitement
         unlock2(&verrou);
     }
     return NULL;
