@@ -3,11 +3,6 @@
 #include "spinlocks.h"
 volatile int x = 0; //variable globale 'verrou' et volatile permet de ne pas le stocker dans un registre
 
-/**
- * Acquiert le verrou (Attente active).
- * Principe : L'algorithme test-and-set tente d'écrire atomiquement la valeur '1'
- * dans le verrou. Si l'ancienne valeur était 0, c'est réussi. Sinon, on réessaie.
- */
 void lock(){
     int y = 1; //on veut mettre la valeur 'locked' dans le verrou
 	//Attente active
@@ -23,10 +18,6 @@ void lock(){
 	//				, si y = 1 (1 venant de x), alors x = 1. Comme le verrou est déjà occupé, la boucle continue
     }
 }
-/**
- * Libèrer le verrou.
- * Principe : On remet la variable globale à 0.
- */
 void unlock(){
     __asm__ __volatile__(
         "movl $0, %0" // on écrit 0 dans la variable x
