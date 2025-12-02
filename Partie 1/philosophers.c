@@ -10,7 +10,8 @@
 #include <string.h>
 
 int N; //nombre de philosophes
-#define CYCLES_P_M 1000000 //cycles penser/manger
+//cycles penser/manger
+#define CYCLES_P_M 1000000
 pthread_mutex_t *baguettes; //une baguette = un mutex
 
 void error(int err, char *msg) {
