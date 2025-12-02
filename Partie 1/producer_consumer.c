@@ -7,7 +7,8 @@
 #include <string.h>
 #include <pthread.h>
 #include <semaphore.h>
-#define MAX_ELEMENTS 131072 //total elements à produire/consommer
+//total elements à produire/consommer
+#define MAX_ELEMENTS 131072
 #define N 8
 
 pthread_mutex_t mutex;
