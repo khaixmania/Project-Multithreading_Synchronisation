@@ -33,11 +33,11 @@ void* philosophe (void* arg){
 	    pthread_mutex_lock(&baguettes[right]);
 	    pthread_mutex_lock(&baguettes[left]);
 	}
-	//manger() constant
+	//manger() instant
 	//libérer les baguettes
 	pthread_mutex_unlock(&baguettes[left]);
 	pthread_mutex_unlock(&baguettes[right]);
-	//penser() constant
+	//penser() instant
     }
     return (NULL);
 }
