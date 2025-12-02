@@ -1,4 +1,5 @@
 //Tâche 2.3
+//test-and-test-and-set
 #include "spinlocks2.h"
 
 void lock2(int *arg){
