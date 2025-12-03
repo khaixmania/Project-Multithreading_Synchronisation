@@ -11,7 +11,7 @@ int verrou = 0;
 
 void *function(void *arg) {
     for (int j=0; j<section_critique; j++) {
-        lock2(&verrou); //Sécurisation de la SECTION CRITIQUE avec l'algo test-and-test-and-set
+        lock2(&verrou); //proteger la SECTION CRITIQUE avec l'algo test-and-test-and-set
         for (int i=0; i<10000; i++); //traitement
         unlock2(&verrou);
     }
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
     for (int i=0; i<N; i++){pthread_create(&threads[i], NULL, function, NULL);}
     for (int i=0; i<N; i++){pthread_join(threads[i], NULL);}
     gettimeofday(&t_end, NULL);
-    double totalsec = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_usec - t_start.tv_usec) / 1e6;
+    double totalsec = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_usec - t_start.tv_usec) / 1000000;
     printf("N = %d, temps = %f secondes", N, totalsec);
     free(threads);
     return EXIT_SUCCESS;
