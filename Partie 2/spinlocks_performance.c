@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
     for (int i=0; i<N; i++){pthread_create(&threads[i], NULL, function, NULL);}
     for (int i=0; i<N; i++){pthread_join(threads[i], NULL);}
     gettimeofday(&t_end, NULL);
-    double totalsec = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_usec - t_start.tv_usec) / 1e6;
+    double totalsec = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_usec - t_start.tv_usec) / 1000000;
     printf("N = %d, temps = %f secondes", N, totalsec);
     free(threads);
     return EXIT_SUCCESS;
