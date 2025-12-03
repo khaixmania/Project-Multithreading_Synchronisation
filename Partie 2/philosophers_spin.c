@@ -22,9 +22,9 @@ void* philosophe (void* arg){
     int left = *id;
     int right = (left+1) % N;
     for (int i=0; i < CYCLES_P_M; i++){
-	// On prend les baguettes (lock) avec lock2() avec de l'attente active
-	// Si une des baguettes est prise, le threade va boucler à l'infini tout en consommant le CPU
-	if (left<right){//ordre forcée d'abord le plus petit
+	//on prend les baguettes (lock) avec lock2() qu'on a implémenté via test-and-test-and-set
+	//si une des baguettes est prise, le threade va boucler à l'infini tout en détruisant le CPU
+	if (left<right){//l'ordre force pour prendre d'abord le plus petit
 	    lock2(&baguettes[left]);
 	    lock2(&baguettes[right]);
 	}
@@ -32,10 +32,8 @@ void* philosophe (void* arg){
 	    lock2(&baguettes[right]);
 	    lock2(&baguettes[left]);
 	}
-	//manger() constant
 	unlock2(&baguettes[left]);
 	unlock2(&baguettes[right]);
-	//penser() constant
     }
     return (NULL);
 }
@@ -55,7 +53,7 @@ int main (int argc, char *argv[]){
     pthread_t *nthreads = malloc(N*sizeof(pthread_t));
     baguettes = malloc(N*sizeof(pthread_mutex_t));
 
-    for (int i=0; i<N; i++){baguettes[i] = 0;} // ici, on init les verrous à 0 (verrous libres)
+    for (int i=0; i<N; i++){baguettes[i] = 0;} // ici, on init les verrous à 0 = verrous libres
 
     for (int i=0; i<N; i++){
 	thread_id[i] = i;
