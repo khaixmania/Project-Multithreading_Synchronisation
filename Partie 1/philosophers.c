@@ -33,11 +33,9 @@ void* philosophe (void* arg){
 	    pthread_mutex_lock(&baguettes[right]);
 	    pthread_mutex_lock(&baguettes[left]);
 	}
-	//manger() instant
 	//libérer les baguettes
 	pthread_mutex_unlock(&baguettes[left]);
 	pthread_mutex_unlock(&baguettes[right]);
-	//penser() instant
     }
     return (NULL);
 }
@@ -55,7 +53,6 @@ int main (int argc, char *argv[]){
     }
     int *thread_id = malloc(N*sizeof(int));
     pthread_t *nthreads = malloc(N*sizeof(pthread_t));
-    //on alloue la memoire pour créer les mtex (baguettes)
 	baguettes = malloc(N*sizeof(pthread_mutex_t));
     for (int i=0; i<N; i++){
 	err = pthread_mutex_init(&baguettes[i], NULL);
