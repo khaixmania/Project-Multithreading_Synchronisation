@@ -1,6 +1,6 @@
 #include "spinlocks2.h" //Choix de la meilleure logique (test-and-test-and-set)
 typedef struct {
-    volatile int x; //compteur pour le nbr de ressources dispo
+    volatile int x; //compteur pour le nbr de ressourcess dispo
     int verrou;
 } my_sem_t;
 //init sémpahore avec une valeur
