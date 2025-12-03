@@ -32,6 +32,7 @@ for programme in "${FILES[@]}"; do
     done
 done
 
+#La suite ici
 #Tâche 2.5
 THREADS2=(2 4 8 16 32)
 FILES2=("philosophers_spin" "producer_consumer_spin" "reader_writer_spin")
