@@ -30,9 +30,9 @@ void* producer(void* arg){
     int id = *(int*)arg; //chaque thread insère un int fixe dans le buffer -> id
     for (int j=0; j<elem_produce; j++){
 	for (int i=0; i<10000; i++);//traitement en dehors de SC
-	//attente active d'une place libre, si le buffer est plein alors le thread boucle au max sur le CPU
+	//attente active d'une place libre, si le buffer est plein alors le thread boucle
 	my_sem_wait(&empty);
-	lock2(&mutex); //commence SC, attente active si c'est déjà occupé
+	lock2(&mutex); //commence SC
 	buffer[id_write] = id;
 	id_write++;
 	if (id_write == N) id_write = 0;
@@ -44,7 +44,7 @@ void* producer(void* arg){
 
 void* consumer(void* arg){
     for (int j=0; j<elem_consume; j++){
-	//attente active d'une donnée, si le buffer est vide alors le thread saturera un core pour rien
+	//attente active d'une donnée, si le buffer est vide alors le thread va consommer pour rien
 	my_sem_wait(&full);
 	lock2(&mutex); //SC
 	id_read++;
