@@ -29,21 +29,21 @@ void error(int err, char *msg) {
 void* writer(void* arg){
     int err;
     for (int i=0; i<nb_writes; i++){
-	//procédure d'un écrivain qui arrive
+	//ecrivain qui arrive
 	if ((err = pthread_mutex_lock(&mwc)) != 0) error(err, "mutex_lock mwc");
         wc++;
 		//l'écrivain qui arrive bloque l'accès aux lecteurs avec sem_wait(&rsem) comme wc = 1
         if (wc == 1) sem_wait(&rsem);
         if ((err = pthread_mutex_unlock(&mwc)) != 0) error(err, "mutex_unlock mwc");
-	//on attend l'accès exclusif au ressource
+	//wait l'acces au ressource
 	sem_wait(&wsem);
 	//SECTION CRITIQUE
 	for (int i = 0; i < 10000; i++); //traitement
 	sem_post(&wsem);
-    //procédure d'un écrivain qui va sortir
+    //ecrivain qui va sortir
 	if ((err = pthread_mutex_lock(&mwc)) != 0) error(err, "mutex_lock mwc");
 	wc--;
-		// l'écrivain qui sort ne bloque plus l'arrivée aux lecteurs
+		// l'écrivain qui sort ne bloque plus les lecteurs
         if (wc == 0) sem_post(&rsem); //dernier des writers cède sa place au lecteur
         if ((err = pthread_mutex_unlock(&mwc)) != 0) error(err, "mutex_unlock mwc");
     }
@@ -54,7 +54,7 @@ void* writer(void* arg){
 void *reader(void* arg){
     int err;
     for (int i=0; i<nb_reads; i++){
-	//procédure d'un lecteur qui arrive
+	//lecteur qui arrive
 	//ici on regarde le z, si il est déjà pris par un écrivain, on va rester ici
 	if ((err = pthread_mutex_lock(&z)) != 0) error(err, "mutex_lock z");
 	sem_wait(&rsem);
@@ -68,7 +68,7 @@ void *reader(void* arg){
 	if ((err = pthread_mutex_unlock(&z)) != 0) error(err, "mutex_unlock z");
 	//SECTION CRITIQUE
 	for (int i = 0; i < 10000; i++);//traitement
-	//procédure d'un lecteur qui va sortir
+	//lecteur qui va sortir
 	if ((err = pthread_mutex_lock(&mrc)) != 0) error(err, "mutex_lock mrc");
 	rc--;
 	if (rc == 0) sem_post(&wsem);// dernier des lecteurs cède la place à l'écrivain
