@@ -145,4 +145,16 @@ Après, on a adapté les trois problèmes de la partie 1 en remplaçant les lock
 
 \section{Conclusion}
 Dans ce projet, nous avons appris à évaluer et à expliquer la performance de plusieurs applications via l'utilisation des threads et des primitives de synchronisation (que nous avons implémentées par nous-mêmes dans la deuxième partie du projet). Durant le projet, on a été contraint par la limite du nombre de cœurs de notre machine virtuelle et l'augmentation du nombre de threads n'améliorait pas nos performances. Nous avons donc conclu, après les analyses de performances, que l'utilisation des primitives POSIX avec la logique d'endormissement des threads en évitant de consommer du CPU inutilement était le meilleur choix à faire. Que ce soit en terme de performance ou en terme de gestion du CPU même si l'on augmente le nombre de threads, il restait bien meilleur que nos spinlocks qu'on a implémenté.
+
+\section*{Références}
+\begin{itemize}
+    \item \textbf{Documentation sur l'assembleur inline :} \\
+    \url{https://cristal.univ-lille.fr/~marquet/ens/ctx/doc/l-ia.html}
+    \item \textbf{Instructions atomiques (xchg) :} \\
+    \url{https://stackoverflow.com/questions/14301644/atomic-inc-and-atomic-xchg-in-gcc-assembly}
+    \item \textbf{Implémentation de Spinlocks en C :} \\
+    \url{https://stackoverflow.com/questions/68388918/would-this-be-a-functioning-spinlock-in-c}
+    \item \textbf{Implémentation de Sémaphores :} \\
+    \url{https://stackoverflow.com/questions/54898512/implementation-of-a-semaphore-in-c}
+\end{itemize}
 \end{document}
