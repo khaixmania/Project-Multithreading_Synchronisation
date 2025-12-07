@@ -44,8 +44,8 @@ $(P2)/reader_writer_spin: $(P2)/reader_writer_spin.c $(P2)/spinlocks2.c $(P2)/my
 #Target 'test' qui lance tous les programmes et les plots
 test: all
 	chmod +x $(P1)/script.sh $(P2)/script2.sh
-	#cd $(P1) && ./script.sh
-	#cd $(P1) && python3 philo_plots.py && python3 pc_plots.py && python3 rw_plots.py
+	cd $(P1) && ./script.sh
+	cd $(P1) && python3 philo_plots.py && python3 pc_plots.py && python3 rw_plots.py
 	cd $(P2) && ./script2.sh
 	cd $(P2) && python3 tests_plot.py
 	cd $(P2) && python3 philo_cmp.py && python3 pc_cmp.py && python3 rw_cmp.py
